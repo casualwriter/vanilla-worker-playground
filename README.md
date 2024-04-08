@@ -1,5 +1,6 @@
 # vanilla-worker-playground
-Vanilla worker playground for cloudflare AI
+
+Vanilla worker playground for cloudflare AI, also act as cloudflare API proxy.
 
 [demo] https://playground.pingshan.uk/
 [source] cf-worker-playground.js
@@ -11,7 +12,9 @@ Vanilla worker playground for cloudflare AI
 1. create an worker in cloudflare
 2. click [edit code] in cloudflare console panel
 3. copy-and-paste the code in `cf-worker-playground.js`, then deploy
-4. add 2 variables `
+4. add 2 variables `CLOUDFLARE_AC_ID` and `CLOUDFLARE_API_KEY`
+
+that's all.
 
 ## Features
 
@@ -25,7 +28,7 @@ Vanilla worker playground for cloudflare AI
 ## Notes
 
 * sorry for rush, the source code not well formatted.
-* vanilla javascript, total less than 300 line html/css/js, plus less 50 lines js for worker.
+* vanilla javascript, less than 300 line html/css/js, plus 50 lines js for worker.
 * last udpated on 2024/04/08
-* license MIT
+* MIT license
   
