@@ -2,8 +2,8 @@
 
 Vanilla worker playground for cloudflare AI, also act as cloudflare API proxy.
 
-[demo] https://playground.pingshan.uk/
-[source] cf-worker-playground.js
+* [demo] https://playground.pingshan.uk/
+* [source] cf-worker-playground.js
 
 ![](vanilla-worker-playground.jpg)
 
