@@ -1,10 +1,3 @@
-/*****************************************************************************
-* 2024/04/08 cloudflare AI worker-playground
-*
-* Copyright (c) 2024, Casualwriter (MIT Licensed)
-* https://github.com/casualwriter/vanilla-worker-playground
-*****************************************************************************/
-const html=`
 <!DOCTYPE html>
 <head>
   <title>Vanilla AI-Playground</title>
@@ -158,7 +151,7 @@ chat.stream = function (prompt) {
     reader.read().then( function processText({ done, value }) {
     
       if (done) return chat.oncomplete(chat.result);
-      const lines = (chat.value=value).split('\\n');
+      const lines = (chat.value=value).split('\n');
 
       for (let i in lines) {
         if (lines[i].length === 0) continue;     // ignore empty message
@@ -190,7 +183,7 @@ chat.export = (fname) => {
   const link = document.createElement('a');
   link.href = 'data:text/plain;charset=utf-8,' 
   chat.history.forEach( (x) => { 
-    link.href += encodeURIComponent('### '+x.prompt+'\\n\\n'+x.result+'\\n\\n') 
+    link.href += encodeURIComponent('### '+x.prompt+'\n\n'+x.result+'\n\n') 
   } );  
   link.download = fname||('chat-'+new Date().toISOString().substr(0,16))+'.md';
   link.click();
@@ -211,7 +204,7 @@ chat.oncomplete = (text) => {
   
   for (let i=0; i<chat.history.length; i++) {
      html1 += '<h4 class=prompt id=prompt'+i+' ondblclick="chat.clipboard('+i+')" title="doubleclick to copy">' 
-     html1 += chat.history[i].prompt + '</h4>\\n' + chat.history[i].result + '\\n\\n'
+     html1 += chat.history[i].prompt + '</h4>\n' + chat.history[i].result + '\n\n'
      html1 += '<p class=stamp>model: ' + chat.history[i].model + ', time: ' + chat.history[i].time.toString() + '</p>'
   }
   
@@ -234,7 +227,7 @@ chat.oncomplete = (text) => {
 // abort fetch request.
 chat.abort = () => { 
   chat.controller.abort()
-  chat("receiving").innerHTML += '\\n<font color=red>Message Aborted!</font>'
+  chat("receiving").innerHTML += '\n<font color=red>Message Aborted!</font>'
   chat("receiving").id = 'abort';
 };
 
@@ -245,14 +238,14 @@ chat.submit = () => {
     chat("btnSend").innerText = 'Send'
   } else if (chat('prompt').value) {
     chat.stream( chat.prompt = chat('prompt').value )
-    chat("main").innerHTML += '<h4 class=prompt>' + chat.prompt + '</h4>\\n<div id=receiving>Receiving....</div>'
+    chat("main").innerHTML += '<h4 class=prompt>' + chat.prompt + '</h4>\n<div id=receiving>Receiving....</div>'
     chat("left").scrollTop = chat("left").scrollHeight;
     chat("btnSend").innerText = 'Stop..'
   }  
 }
 
 chat.clipboard = (i) => {
-  navigator.clipboard.writeText( '### '+ chat.history[i].prompt + '\\n\\n' + chat.history[i].result )
+  navigator.clipboard.writeText( '### '+ chat.history[i].prompt + '\n\n' + chat.history[i].result )
   chat("message").innerText = 'dialogue has been copied to clipboard'
 }
 
@@ -306,47 +299,6 @@ window.onload = () => {
     });
   })
   chat('prompt').focus();
+  chat.endpoint  = "https://playground.pingshan.uk/ai/run/";
 };
 </script>
-`;
-
-async function handleRequest(request, env) {
-  if (request.method === 'GET') {
-    const pageRequest = new Response( html, { headers: { 'Content-Type': 'text/html; charset=utf-8' } } );       
-    pageRequest.headers.set('Access-Control-Allow-Origin', '*');
-    return pageRequest;
-  } else {
-      return proxy(request, env);
-  }
-}
-
-async function proxy(request, env) {
-
-  const url = new URL(request.url);
-  //url.host = 'api.openai.com'; 
-  url.host = 'api.cloudflare.com' 
-  url.pathname = '/client/v4/accounts/' + env.CLOUDFLARE_AC_ID + url.pathname
-
-  const modifiedRequest = new Request(url.toString(), {
-    headers: request.headers,
-    method: request.method,
-    body: request.body,
-    redirect: 'follow'
-  });
-
-  modifiedRequest.headers.set('Authorization', `Bearer ${env.CLOUDFLARE_API_KEY}` );  
-  
-  const response = await fetch(modifiedRequest);
-  const modifiedResponse = new Response(response.body, response);
-
-  // allow cross-region request
-  modifiedResponse.headers.set('Access-Control-Allow-Origin', '*');
-
-  return modifiedResponse;
-}
-
-export default {
-  async fetch(request, env) {
-    return handleRequest(request, env).catch(err => new Response(err || 'Unknown reason', { status: 403 }))
-  }
-};
